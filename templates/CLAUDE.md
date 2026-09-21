@@ -75,8 +75,8 @@ Naming/style rules not caught by tooling.
 Known traps and how to avoid them.
 
 ## References
+
 - Canva for Agents: https://www.canva.dev/agents
-- Canva AI Builder Kit: https://github.com/canva-sdks/canva-ai-builder-kit
+- Canva Developer Agent Kit: https://github.com/canva-sdks/canva-developer-agent-kit
 - Canva MCP Skills: https://github.com/canva-sdks/canva-skills
 - Canva Developers: https://www.canva.dev/
-- Current capability matrix: [add link]
