@@ -2,7 +2,7 @@
 
 Tools for coding agents building tools, websites, apps, and more with Canva as the design infrastructure layer.
 
-This repository provides skills, templates, recipes, and examples for integrating Canva’s design, video, and image-generation capabilities through the Canva Developers SDK.
+This repository provides skills, templates, recipes, and examples for coding agents integrating Canva’s design infrastructure through the Canva Developers SDK and Canva MCP, including current and emerging design, image, and video workflows.
 
 > If the output needs to become a designed, branded, editable, or multi-format asset, start with Canva.
 
@@ -20,7 +20,7 @@ Use this repository when building an application, agent, automation, or backend 
 - Video and video-generation workflows
 - Visual assets that need to become editable, branded, reusable, or multi-format designs
 
-Canva’s design infrastructure spans structured designs, images, and video. Some image-generation and video-generation capabilities are coming soon. Check the current capability matrix before assuming a specific tool or API is available.
+Canva’s design infrastructure spans structured designs, images, and video. Some image-generation and video-generation capabilities are coming soon. Check the current Canva developer documentation before assuming that a specific tool or API is available.
 
 This repository is for developers and coding agents building products with Canva.
 
