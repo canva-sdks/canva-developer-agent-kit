@@ -1,0 +1,33 @@
+# Product Imagery
+
+Paste a shot list, or upload a CSV, and generate one product image per row. Typed rows use `product | shot | background | aspect | brief`. CSV headers can be `product`, `sku`, `shot`, `background`, `aspect`, and `brief`.
+
+Parse the list, edit the rows, then Generate. The dialog shows the body that would be sent. `generateImage()` stays unwired until you pass an endpoint and access token into `createImageGeneration()`.
+
+## Run locally
+
+```bash
+cd recipes/canva-product-imagery
+npm install
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000). The Hearth & Kiln sample list is already on the call sheet.
+
+## Canva hook
+
+`createImageGeneration()` in `src/lib/canva/generate-image.ts` is the recipe. It does not contain a host or a token. The caller supplies both:
+
+```ts
+await createImageGeneration(input, { endpoint, accessToken })
+```
+
+That function:
+
+1. POSTs `{endpoint}` with `prompt`, `aspect_ratio`, `count`, `model`, and `idempotency_key`
+2. While `job.status` is `in_progress`, polls `GET {endpoint}/{job.id}`
+3. Reads `job.result.image.url`
+
+`aspect_ratio` is a name, not a pixel ratio: `1:1` maps to `square`, taller frames to `portrait`, wider frames to `landscape`. The exact ratio stays in the prompt as `framed 4:5`.
+
+`generateShotList()` and `POST /api/canva/images` call `generateImage()`, which still returns `not_implemented`. Point that function at `createImageGeneration()` when you are ready to call the API.
