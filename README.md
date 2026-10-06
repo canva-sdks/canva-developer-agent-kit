@@ -75,7 +75,7 @@ Recipes may include mocked or simulated steps when the required Canva capability
 
 Runnable applications and integrations. A workflow belongs in `examples/` only when it can be executed and tested with currently available Canva capabilities.
 
-Examples are planned and will appear when capabilities are stable.
+- [`campaign-image-studio-starter`](examples/campaign-image-studio-starter)
 
 ### References
 
@@ -154,7 +154,8 @@ Do not claim that a Canva capability is supported unless it is confirmed in the 
 │   └── canva-product-imagery/
 ├── skills/
 │   └── canva-design-infrastructure/
-├── examples/ (planned)
+├── examples/
+│   └── campaign-image-studio-starter/
 └── templates/
     ├── AGENTS.md
     ├── CLAUDE.md
