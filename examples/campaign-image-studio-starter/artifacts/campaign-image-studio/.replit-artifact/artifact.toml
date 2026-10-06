@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "Campaign Image Studio"
+description = "A compact creative tool for turning campaign briefs into square, landscape, or portrait images, keeping a history of prompts and sending generated images into Canva designs."
+version = "1.0.0"
+id = "artifacts/campaign-image-studio"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 25870
+
+[services.development]
+run = "pnpm --filter @workspace/campaign-image-studio run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/campaign-image-studio", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/campaign-image-studio/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "25870"
+BASE_PATH = "/"

@@ -1,0 +1,254 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: API specification
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: canva
+    description: Canva OAuth, image generation, and import jobs
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      description: Returns server health status
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+  /canva/auth/status:
+    get:
+      operationId: getCanvaAuthStatus
+      tags: [canva]
+      summary: Check Canva connection status
+      responses:
+        "200":
+          description: Canva connection status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CanvaAuthStatus"
+  /canva/auth/disconnect:
+    post:
+      operationId: disconnectCanva
+      tags: [canva]
+      summary: Disconnect the Canva account
+      responses:
+        "200":
+          description: Canva connection status after disconnecting
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CanvaAuthStatus"
+  /canva/generations:
+    post:
+      operationId: createCanvaGeneration
+      tags: [canva]
+      summary: Create a Canva image generation job
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CanvaGenerationInput"
+      responses:
+        "202":
+          description: Image generation job accepted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CanvaGenerationCreated"
+        "400":
+          description: Invalid generation request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Canva account is not connected
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /canva/generations/{jobId}:
+    get:
+      operationId: getCanvaGeneration
+      tags: [canva]
+      summary: Get the status and result of a Canva image generation job
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Image generation job
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CanvaGenerationJob"
+        "401":
+          description: Canva account is not connected
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /canva/imports:
+    post:
+      operationId: createCanvaImageImport
+      tags: [canva]
+      summary: Create an editable Canva design from a generated image asset
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CanvaImageImportInput"
+      responses:
+        "202":
+          description: Image-to-design import job accepted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CanvaImageImportCreated"
+        "400":
+          description: Invalid import request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          description: Canva account is not connected
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /canva/imports/{jobId}:
+    get:
+      operationId: getCanvaImageImport
+      tags: [canva]
+      summary: Get the status and result of an image-to-design import job
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Image-to-design import job
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CanvaImageImportJob"
+        "401":
+          description: Canva account is not connected
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+    CanvaAuthStatus:
+      type: object
+      properties:
+        connected:
+          type: boolean
+        expiresAt:
+          type: ["string", "null"]
+      required: [connected, expiresAt]
+    CanvaGenerationInput:
+      type: object
+      properties:
+        prompt:
+          type: string
+          minLength: 1
+          maxLength: 2000
+        aspectRatio:
+          type: string
+          enum: [square, landscape, portrait]
+      required: [prompt, aspectRatio]
+    CanvaGenerationCreated:
+      type: object
+      properties:
+        jobId:
+          type: string
+        status:
+          type: string
+          enum: [in_progress, success, failed]
+      required: [jobId, status]
+    CanvaGenerationJob:
+      type: object
+      properties:
+        jobId:
+          type: string
+        status:
+          type: string
+          enum: [in_progress, success, failed]
+        imageUrl:
+          type: ["string", "null"]
+        assetId:
+          type: ["string", "null"]
+        error:
+          type: ["string", "null"]
+      required: [jobId, status, imageUrl, assetId, error]
+    CanvaImageImportInput:
+      type: object
+      properties:
+        assetId:
+          type: string
+          minLength: 1
+        title:
+          type: string
+          minLength: 1
+          maxLength: 255
+      required: [assetId, title]
+    CanvaImageImportCreated:
+      type: object
+      properties:
+        jobId:
+          type: string
+        status:
+          type: string
+          enum: [in_progress, success, failed]
+      required: [jobId, status]
+    CanvaImageImportJob:
+      type: object
+      properties:
+        jobId:
+          type: string
+        status:
+          type: string
+          enum: [in_progress, success, failed]
+        designUrl:
+          type: ["string", "null"]
+        error:
+          type: ["string", "null"]
+      required: [jobId, status, designUrl, error]
+    ApiError:
+      type: object
+      properties:
+        error:
+          type: string
+        code:
+          type: ["string", "null"]
+      required: [error, code]
+

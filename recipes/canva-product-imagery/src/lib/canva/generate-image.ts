@@ -20,6 +20,13 @@ const ASPECT_RATIO: Record<ProductAspect, ImageAspectRatio> = {
 
 const PENDING_JOB = new Set(["in_progress", "pending", "queued", "processing"]);
 
+function imageGenerationError(status: number, step = "request") {
+  if (status === 401 || status === 403) {
+    return "Canva rejected the access token. Replace TOKEN in .env.local and restart the dev server.";
+  }
+  return `Image generation ${step} returned ${status}.`;
+}
+
 export type ImageGenerationJob = {
   id?: string;
   status?: string;
@@ -66,7 +73,7 @@ export async function createImageGeneration(
     }),
   });
   if (!created.ok) {
-    throw new Error(`Image generation returned ${created.status}.`);
+    throw new Error(imageGenerationError(created.status));
   }
 
   let body = (await created.json()) as ImageGenerationResponse;
@@ -84,7 +91,7 @@ export async function createImageGeneration(
       signal: AbortSignal.timeout(30_000),
     });
     if (!polled.ok) {
-      throw new Error(`Image generation poll returned ${polled.status}.`);
+      throw new Error(imageGenerationError(polled.status, "poll"));
     }
     body = (await polled.json()) as ImageGenerationResponse;
   }
@@ -96,16 +103,34 @@ export async function createImageGeneration(
 }
 
 /**
- * Scaffold entry point. The shot list builds the request body here.
- * Wiring the call is `createImageGeneration(input, { endpoint, accessToken })`.
+ * Shot-list entry point. Reads `TOKEN` and `IMAGE_GEN_URL` from the
+ * environment, then creates the job and polls until the image URL is ready.
  */
 export async function generateImage(
   input: GenerateImageInput,
 ): Promise<GenerateImageResult> {
+  const accessToken = process.env.TOKEN?.trim() ?? "";
+  const endpoint = process.env.IMAGE_GEN_URL?.trim() ?? "";
+  if (!accessToken || !endpoint) {
+    throw new Error(
+      "Set TOKEN and IMAGE_GEN_URL in .env.local, then restart the dev server.",
+    );
+  }
+
+  const result = await createImageGeneration(input, { endpoint, accessToken });
+  const failed =
+    result.job?.status === "failed" || result.job?.status === "failure";
+  if (failed || !result.imageUrl) {
+    throw new Error(
+      failed ? "Image generation failed." : "Image generation returned no image.",
+    );
+  }
+
   return {
-    status: "not_implemented",
-    message: "Canva image generation API is not wired yet.",
-    input,
+    status: "ok",
+    imageUrl: result.imageUrl,
+    width: result.job?.result?.image?.width,
+    height: result.job?.result?.image?.height,
   };
 }
 

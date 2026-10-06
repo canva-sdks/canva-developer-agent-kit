@@ -41,8 +41,21 @@ export function ImagePayloadDialog({
         <p className="mt-3 max-w-prose text-sm leading-relaxed text-[#1a1410]/70">
           {first && first.status === "not_implemented"
             ? `${first.message} ${results.length} image${results.length === 1 ? "" : "s"} — one generation call per row on the shot list.`
-            : `${results.length} product image${results.length === 1 ? "" : "s"} generated.`}
+            : `${results.filter((result) => result.status === "ok").length} of ${results.length} product image${results.length === 1 ? "" : "s"} generated.`}
         </p>
+        <div className="mt-4 grid gap-3">
+          {results.map((result) =>
+            result.status === "ok" ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                key={result.imageUrl}
+                src={result.imageUrl}
+                alt=""
+                className="max-h-80 w-full rounded-xl bg-[#e4ddd0] object-contain"
+              />
+            ) : null,
+          )}
+        </div>
         <pre className="mt-4 overflow-x-auto rounded-xl bg-[#1a1410] p-4 text-xs leading-relaxed text-[#f7f1e6]">
           {JSON.stringify(
             results.map((result) =>

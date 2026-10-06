@@ -2,7 +2,7 @@
 
 Paste a shot list, or upload a CSV, and generate one product image per row. Typed rows use `product | shot | background | aspect | brief`. CSV headers can be `product`, `sku`, `shot`, `background`, `aspect`, and `brief`.
 
-Parse the list, edit the rows, then Generate. The dialog shows the body that would be sent. `generateImage()` stays unwired until you pass an endpoint and access token into `createImageGeneration()`.
+Parse the list, edit the rows, then Generate. `generateImage()` calls `createImageGeneration()` with `TOKEN` and `IMAGE_GEN_URL` from `.env.local`. That file is gitignored. Restart the dev server after changing it.
 
 ## Run locally
 
@@ -30,4 +30,4 @@ That function:
 
 `aspect_ratio` is a name, not a pixel ratio: `1:1` maps to `square`, taller frames to `portrait`, wider frames to `landscape`. The exact ratio stays in the prompt as `framed 4:5`.
 
-`generateShotList()` and `POST /api/canva/images` call `generateImage()`, which still returns `not_implemented`. Point that function at `createImageGeneration()` when you are ready to call the API.
+`generateShotList()` and `POST /api/canva/images` call `generateImage()`, which reads those two environment variables and returns each finished image URL.

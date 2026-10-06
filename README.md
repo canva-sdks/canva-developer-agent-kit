@@ -115,7 +115,7 @@ The product imagery recipe demonstrates a pattern for:
 3. Creating the job, then polling until `job.status` leaves `in_progress`
 4. Reading `job.result.image.url`
 
-The poll lives in `createImageGeneration()`. The recipe does not include an access token or an endpoint URL. Pass those in when you wire the call.
+The poll lives in `createImageGeneration()`. `generateImage()` calls it with `TOKEN` and `IMAGE_GEN_URL` from a gitignored `.env.local`.
 
 ### Run the Recipe
 

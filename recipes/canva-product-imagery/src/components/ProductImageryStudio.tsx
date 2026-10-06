@@ -28,6 +28,7 @@ export function ProductImageryStudio() {
   const [error, setError] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
   const [results, setResults] = useState<GenerateImageResult[] | null>(null);
+  const [images, setImages] = useState<Record<string, string>>({});
 
   function applyList(text: string, label: string) {
     const parsed = parseShotList(text);
@@ -37,6 +38,7 @@ export function ProductImageryStudio() {
     }
     setError(null);
     setShots(parsed.shots);
+    setImages({});
     setSourceLabel(label);
     setDraft(text.trim());
   }
@@ -79,6 +81,14 @@ export function ProductImageryStudio() {
         throw new Error(data.error || "Couldn’t call Canva image generation.");
       }
       setResults(data.results);
+      setImages((current) => {
+        const next = { ...current };
+        ready.forEach((shot, index) => {
+          const result = data.results?.[index];
+          if (result?.status === "ok") next[shot.id] = result.imageUrl;
+        });
+        return next;
+      });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {
@@ -112,9 +122,8 @@ export function ProductImageryStudio() {
           then the pictures.
         </h1>
         <p className="mt-4 max-w-xl text-sm leading-relaxed text-[#1a1410]/65">
-          Paste a CSV or type one line per frame. Generating the list builds
-          one image job per row. The request is shown here until
-          createImageGeneration is wired with an endpoint and access token.
+          Paste a CSV or type one line per frame. Generating the list creates
+          one image job per row, then polls until each picture is ready.
         </p>
 
         <form
@@ -230,16 +239,27 @@ export function ProductImageryStudio() {
                 key={shot.id}
                 className="flex flex-col rounded-2xl bg-white/70 p-3 ring-1 ring-[#1a1410]/10"
               >
-                <div className="relative h-40 overflow-hidden rounded-xl bg-[#e4ddd0]">
-                  <div className="absolute inset-3 border border-dashed border-[#1a1410]/25" />
-                  <p className="absolute left-5 top-5 text-[10px] font-medium uppercase tracking-[0.16em] text-[#1a1410]/50">
+                <div className="relative h-48 overflow-hidden rounded-xl bg-[#e4ddd0]">
+                  {images[shot.id] ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={images[shot.id]}
+                      alt=""
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <>
+                      <div className="absolute inset-3 border border-dashed border-[#1a1410]/25" />
+                      <p className="absolute bottom-5 left-5 right-5 font-display text-2xl tracking-tight">
+                        {shot.shot || "Shot"}
+                      </p>
+                    </>
+                  )}
+                  <p className="absolute left-5 top-5 text-[10px] font-medium uppercase tracking-[0.16em] text-[#1a1410]/70">
                     {String(index + 1).padStart(2, "0")}
                   </p>
-                  <p className="absolute right-5 top-5 text-[10px] font-medium uppercase tracking-[0.16em] text-[#1a1410]/50">
+                  <p className="absolute right-5 top-5 text-[10px] font-medium uppercase tracking-[0.16em] text-[#1a1410]/70">
                     {shot.aspect}
-                  </p>
-                  <p className="absolute bottom-5 left-5 right-5 font-display text-2xl tracking-tight">
-                    {shot.shot || "Shot"}
                   </p>
                 </div>
 
