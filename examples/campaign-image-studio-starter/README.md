@@ -4,6 +4,8 @@ Generate square, landscape, or portrait campaign images from a brief, keep promp
 
 This is a source-only starter. It includes no real Canva credentials, connected sessions, database contents, browser history, Git history, or original deployment configuration. The OAuth implementation uses Authorization Code with PKCE. Each recipient must use their own Canva integration.
 
+You can see an example of this app running at [https://campaign-image-studio.replit.app/](https://campaign-image-studio.replit.app/).
+
 ## Before you start
 
 - Node.js 24 and pnpm 10.
